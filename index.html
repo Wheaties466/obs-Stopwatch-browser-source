@@ -10,23 +10,6 @@
 <body>
     <div id="timer">00:00:00</div>
 
-    <!-- Hidden elements for updating hotkeys -->
-    <div id="hotkey-settings" style="display: none;">
-        <label>
-            Start: <input type="text" id="start-hotkey-input" placeholder="e.g., Digit1 for '1'" />
-        </label>
-        <label>
-            Stop: <input type="text" id="stop-hotkey-input" placeholder="e.g., Digit2 for '2'" />
-        </label>
-        <label>
-            Reset: <input type="text" id="reset-hotkey-input" placeholder="e.g., Digit3 for '3'" />
-        </label>
-        <button onclick="updateHotkeys()">Update Hotkeys</button>
-    </div>
-
-    <!-- Button to show/hide hotkey settings -->
-    <button onclick="toggleHotkeySettings()">Change Hotkeys</button>
-
     <script>
         let timerInterval;
         let startTime;
@@ -62,46 +45,22 @@
             updateDisplay(0);
         }
 
-        // Initial Hotkey assignments
-        let START_HOTKEY = 'Digit1';  // Ctrl + Shift + 1
-        let STOP_HOTKEY = 'Digit2';   // Ctrl + Shift + 2
-        let RESET_HOTKEY = 'Digit3';  // Ctrl + Shift + 3
-
         // Hotkey listeners
-        document.addEventListener('keydown', function (event) {
+        document.addEventListener('keydown', function(event) {
             if (event.ctrlKey && event.shiftKey) {
-                switch (event.code) {
-                    case START_HOTKEY:
+                switch(event.code) {
+                    case 'Digit1': // Ctrl + Shift + 1
                         startTimer();
                         break;
-                    case STOP_HOTKEY:
+                    case 'Digit2': // Ctrl + Shift + 2
                         stopTimer();
                         break;
-                    case RESET_HOTKEY:
+                    case 'Digit3': // Ctrl + Shift + 3
                         resetTimer();
                         break;
                 }
             }
         });
-
-        // Toggle visibility of the hotkey settings
-        function toggleHotkeySettings() {
-            const settings = document.getElementById('hotkey-settings');
-            if (settings.style.display === 'none') {
-                settings.style.display = 'block';
-            } else {
-                settings.style.display = 'none';
-            }
-        }
-
-        // Update the hotkeys based on user input
-        function updateHotkeys() {
-            START_HOTKEY = document.getElementById('start-hotkey-input').value;
-            STOP_HOTKEY = document.getElementById('stop-hotkey-input').value;
-            RESET_HOTKEY = document.getElementById('reset-hotkey-input').value;
-            alert('Hotkeys updated!');
-            toggleHotkeySettings();  // Hide the settings after updating
-        }
     </script>
 </body>
 
