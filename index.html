@@ -3,71 +3,74 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stopwatch for OBS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: transparent;
-        }
-
-        #timer {
-            font-size: 2em;
-        }
-    </style>
+    <title>OBS Stopwatch</title>
 </head>
 
 <body>
-    <span id="timer">00:00.0</span>
+    <div id="timer">00:00:00</div>
+
+    <!-- Hidden elements for updating hotkeys -->
+    <div id="hotkey-settings" style="display: none;">
+        <label>
+            Start: <input type="text" id="start-hotkey-input" placeholder="e.g., Digit1 for '1'" />
+        </label>
+        <label>
+            Stop: <input type="text" id="stop-hotkey-input" placeholder="e.g., Digit2 for '2'" />
+        </label>
+        <label>
+            Reset: <input type="text" id="reset-hotkey-input" placeholder="e.g., Digit3 for '3'" />
+        </label>
+        <button onclick="updateHotkeys()">Update Hotkeys</button>
+    </div>
+
+    <!-- Button to show/hide hotkey settings -->
+    <button onclick="toggleHotkeySettings()">Change Hotkeys</button>
 
     <script>
-        let startTime = null;
-        let interval = null;
+        let timerInterval;
+        let startTime;
+        let elapsedTime = 0;
 
-        const timerElement = document.getElementById('timer');
-
-        function updateTimer() {
-            const now = Date.now();
-            const timeDifference = now - startTime;
-            const minutes = Math.floor(timeDifference / 60000);
-            const seconds = Math.floor((timeDifference % 60000) / 1000);
-            const tenths = Math.floor((timeDifference % 1000) / 100);
-            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
+        function updateDisplay(time) {
+            const date = new Date(time);
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const milliseconds = String(date.getMilliseconds()).substr(0, 2);
+            document.getElementById('timer').textContent = `${minutes}:${seconds}:${milliseconds}`;
         }
 
         function startTimer() {
-            if (!startTime) {
-                startTime = Date.now();
-                interval = setInterval(updateTimer, 100);
+            if (!timerInterval) {
+                startTime = Date.now() - (elapsedTime || 0);
+                timerInterval = setInterval(function () {
+                    elapsedTime = Date.now() - startTime;
+                    updateDisplay(elapsedTime);
+                }, 10);
             }
         }
 
         function stopTimer() {
-            if (interval) {
-                clearInterval(interval);
-                startTime = null;
-            }
+            clearInterval(timerInterval);
+            timerInterval = null;
         }
 
         function resetTimer() {
-            stopTimer();
-            timerElement.textContent = '00:00.0';
+            clearInterval(timerInterval);
+            timerInterval = null;
+            elapsedTime = 0;
+            updateDisplay(0);
         }
 
-        // Hotkey assignments (easy to modify)
-        const START_HOTKEY = 'Digit1';  // Ctrl + 1
-        const STOP_HOTKEY = 'Digit2';   // Ctrl + 2
-        const RESET_HOTKEY = 'Digit3';  // Ctrl + 3
+        // Initial Hotkey assignments
+        let START_HOTKEY = 'Digit1';  // Ctrl + Shift + 1
+        let STOP_HOTKEY = 'Digit2';   // Ctrl + Shift + 2
+        let RESET_HOTKEY = 'Digit3';  // Ctrl + Shift + 3
 
         // Hotkey listeners
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey) {
-                switch(event.code) {
+        document.addEventListener('keydown', function (event) {
+            if (event.ctrlKey && event.shiftKey) {
+                switch (event.code) {
                     case START_HOTKEY:
                         startTimer();
                         break;
@@ -80,6 +83,25 @@
                 }
             }
         });
+
+        // Toggle visibility of the hotkey settings
+        function toggleHotkeySettings() {
+            const settings = document.getElementById('hotkey-settings');
+            if (settings.style.display === 'none') {
+                settings.style.display = 'block';
+            } else {
+                settings.style.display = 'none';
+            }
+        }
+
+        // Update the hotkeys based on user input
+        function updateHotkeys() {
+            START_HOTKEY = document.getElementById('start-hotkey-input').value;
+            STOP_HOTKEY = document.getElementById('stop-hotkey-input').value;
+            RESET_HOTKEY = document.getElementById('reset-hotkey-input').value;
+            alert('Hotkeys updated!');
+            toggleHotkeySettings();  // Hide the settings after updating
+        }
     </script>
 </body>
 
