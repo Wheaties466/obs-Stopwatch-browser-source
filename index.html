@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch for OBS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: transparent;
+        }
+
+        #timer {
+            font-size: 2em;
+        }
+    </style>
+</head>
+
+<body>
+    <span id="timer">00:00.0</span>
+
+    <script>
+        let startTime = null;
+        let interval = null;
+
+        const timerElement = document.getElementById('timer');
+
+        function updateTimer() {
+            const now = Date.now();
+            const timeDifference = now - startTime;
+            const minutes = Math.floor(timeDifference / 60000);
+            const seconds = Math.floor((timeDifference % 60000) / 1000);
+            const tenths = Math.floor((timeDifference % 1000) / 100);
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${tenths}`;
+        }
+
+        function startTimer() {
+            if (!startTime) {
+                startTime = Date.now();
+                interval = setInterval(updateTimer, 100);
+            }
+        }
+
+        function stopTimer() {
+            if (interval) {
+                clearInterval(interval);
+                startTime = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timerElement.textContent = '00:00.0';
+        }
+
+        // Hotkey assignments (easy to modify)
+        const START_HOTKEY = 'Digit1';  // Ctrl + 1
+        const STOP_HOTKEY = 'Digit2';   // Ctrl + 2
+        const RESET_HOTKEY = 'Digit3';  // Ctrl + 3
+
+        // Hotkey listeners
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey) {
+                switch(event.code) {
+                    case START_HOTKEY:
+                        startTimer();
+                        break;
+                    case STOP_HOTKEY:
+                        stopTimer();
+                        break;
+                    case RESET_HOTKEY:
+                        resetTimer();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
